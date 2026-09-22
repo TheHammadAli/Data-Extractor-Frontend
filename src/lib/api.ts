@@ -32,7 +32,7 @@ export async function openBrowser(url?: string): Promise<void> {
   }
 }
 
-export async function getBrowserStatus(): Promise<{ open: boolean }> {
+export async function getBrowserStatus(): Promise<{ open: boolean; mode?: 'attach' | 'launch' }> {
   const res = await fetch(`${API_BASE_URL}/agent/browser/status`, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to check browser status (${res.status})`);
   return res.json();

@@ -33,10 +33,14 @@ export default function AgentPage() {
   const [browserOpen, setBrowserOpen] = useState(false);
   const [browserBusy, setBrowserBusy] = useState(false);
   const [browserError, setBrowserError] = useState<string | null>(null);
+  const [browserMode, setBrowserMode] = useState<'attach' | 'launch'>('attach');
 
   useEffect(() => {
     getBrowserStatus()
-      .then((s) => setBrowserOpen(s.open))
+      .then((s) => {
+        setBrowserOpen(s.open);
+        setBrowserMode(s.mode ?? 'attach');
+      })
       .catch(() => undefined);
   }, []);
 
@@ -115,21 +119,27 @@ export default function AgentPage() {
           <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-medium">Your browser</p>
+                <p className="text-sm font-medium">
+                  {browserMode === "launch" ? "Server browser" : "Your browser"}
+                </p>
                 <p className="mt-1 text-xs text-zinc-500">
-                  {browserOpen
-                    ? "Connected. The agent will use your open tab for this site — your login, cookies and session stay as they are, and the browser is never closed."
-                    : "The agent drives your own browser, never an isolated one. Click Open Browser, or start Chrome yourself with --remote-debugging-port=9222 and a --user-data-dir."}
+                  {browserMode === "launch"
+                    ? "This backend runs its own browser on the server, so it can't use your logged-in session. Fill in the login below if the site needs one — and note it can't solve a CAPTCHA or OTP."
+                    : browserOpen
+                      ? "Connected. The agent will use your open tab for this site — your login, cookies and session stay as they are, and the browser is never closed."
+                      : "The agent drives your own browser, never an isolated one. Click Open Browser, or start Chrome yourself with --remote-debugging-port=9222 and a --user-data-dir."}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={browserOpen ? handleCloseBrowser : handleOpenBrowser}
-                disabled={browserBusy}
-                className="shrink-0 rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-              >
-                {browserBusy ? "Working..." : browserOpen ? "Close Browser" : "Open Browser"}
-              </button>
+              {browserMode === "attach" && (
+                <button
+                  type="button"
+                  onClick={browserOpen ? handleCloseBrowser : handleOpenBrowser}
+                  disabled={browserBusy}
+                  className="shrink-0 rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                >
+                  {browserBusy ? "Working..." : browserOpen ? "Close Browser" : "Open Browser"}
+                </button>
+              )}
             </div>
             {browserError && <p className="text-xs text-red-600 dark:text-red-400">{browserError}</p>}
           </div>
