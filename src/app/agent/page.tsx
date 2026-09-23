@@ -116,21 +116,18 @@ export default function AgentPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium">
-                  {browserMode === "launch" ? "Server browser" : "Your browser"}
-                </p>
-                <p className="mt-1 text-xs text-zinc-500">
-                  {browserMode === "launch"
-                    ? "This backend runs its own browser on the server, so it can't use your logged-in session. Fill in the login below if the site needs one — and note it can't solve a CAPTCHA or OTP."
-                    : browserOpen
+          {/* Nothing to show when the backend runs its own browser — there is no session to attach to. */}
+          {browserMode === "attach" && (
+            <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium">Your browser</p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    {browserOpen
                       ? "Connected. The agent will use your open tab for this site — your login, cookies and session stay as they are, and the browser is never closed."
                       : "The agent drives your own browser, never an isolated one. Click Open Browser, or start Chrome yourself with --remote-debugging-port=9222 and a --user-data-dir."}
-                </p>
-              </div>
-              {browserMode === "attach" && (
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={browserOpen ? handleCloseBrowser : handleOpenBrowser}
@@ -139,10 +136,10 @@ export default function AgentPage() {
                 >
                   {browserBusy ? "Working..." : browserOpen ? "Close Browser" : "Open Browser"}
                 </button>
-              )}
+              </div>
+              {browserError && <p className="text-xs text-red-600 dark:text-red-400">{browserError}</p>}
             </div>
-            {browserError && <p className="text-xs text-red-600 dark:text-red-400">{browserError}</p>}
-          </div>
+          )}
 
           <div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
             <p className="mb-3 text-sm font-medium">
